@@ -12,7 +12,24 @@ const prisma = new PrismaClient({
 // [필수] 1. 아이템 생성
 // 1. 아이템 코드, 아이템 명, 아이템 능력, 아이템 가격을 req(request)에서 json으로 전달받기
 // 2. 데이터베이스에 아이템 저장하기
-router.post('/item/create', async (req, res) => {});
+router.post('/item/create', async (req, res) => {
+  const itemCode = req.body.item_code;
+  const itemName = req.body.item_name;
+  const atk = req.body.atk;
+  const price = req.body.price;
+
+  const createItem = prisma.item.create({
+    data: {
+      itemCode: itemCode,
+      itemName: itemName,
+      atk: atk,
+      price: price,
+    },
+  });
+
+  console.log(createItem);
+});
+  // console.log('item create');
 
 // [필수] 2. 아이템 목록 조회
 router.get('/item/list', (req, res) => {
