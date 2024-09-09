@@ -37,8 +37,8 @@ router.post('/item/create/:itemId', async (req, res) => {
     error: '실패했습니다.',
     message: error.message || '알 수 없는 오류가 발생했습니다.'
     // catch (error) { 
-    res.status(500).json({ error: error})
-   console.log(error);
+  //   res.status(500).json({ error: error})
+  //  console.log(error);
   });
 }
 });
