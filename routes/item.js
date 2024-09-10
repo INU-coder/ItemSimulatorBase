@@ -37,7 +37,7 @@ router.post('/item/create/:itemId', async (req, res) => {
     error: '실패했습니다.',
     message: error.message || '알 수 없는 오류가 발생했습니다.'
     // catch (error) { 
-  //   res.status(500).json({ error: error})
+  //   res.status(500).json({ error: error}) -> error:error / error:'에러가 발생했습니다.'
   //  console.log(error);
   });
 }
@@ -45,14 +45,40 @@ router.post('/item/create/:itemId', async (req, res) => {
   // console.log('item create');
 
 // [필수] 2. 아이템 목록 조회
-router.get('/item/list', (req, res) => {
-  prisma.item.findMany();
+router.get('/item/list', async (req, res) => {
+  try {
+    const itemList = await prisma.item.findMany();
+    res.status(200).json({ items: itemList });
+  } catch (error) {
+    console.error('아이템 목록 조회 실패:', error);
+    res.status(500).json({
+      error: '실패했습니다.',
+      message: error.message || '알 수 없는 오류가 발생했습니다.',
+    });
+  }
 });
 
 // [필수] 3. 특정 아이템 조회
 // 아이템 코드는 URL의 parameter로 전달받기
 router.get('/item/:itemCode', async (req, res) => {
-  prisma.item.findUnique();
+  try {
+  const itemCode = parseInt(req.params.itemCode); // string
+
+  const result = await prisma.item.findUnique({ where: { itemCode: parseInt(itemCode)}});
+  //const result = await prisma.item.findUnique({ where: { itemCode: parseInt(itemCode)}});
+  // 위 코드에서 itemCode: itemCode 이렇게 쓰면 스트링으로 간다. 따라서 숫자로 바꿔주어야하는데,
+  // 그방법이 parseInt(itemCode) or +itemCode 를 사용하면된다. +기능은 prisma에서 지원하는 기능.
+  
+  if (findItem == null) {
+    res.status(404).json({error: '헉! 그런... 아이템은... 존재하지 않는데...!' });
+    return;
+  }
+  
+  res.status(200).json({ item_info: findItem });
+} catch (error) {
+  res.status(500).json({ error: '아이템 조회에 실패했어요.'});
+  console.log(error);
+}
 });
 
 // [필수] 4. 특정 아이템 수정
