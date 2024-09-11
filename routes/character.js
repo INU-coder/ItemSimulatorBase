@@ -1,5 +1,9 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
+import isValidAuth from '../middlewares/auth.js';
+import authMiddleware from '../middlewares/auth.js';
+
 
 const router = express.Router();
 
@@ -19,9 +23,14 @@ router.post('/character/delete', (req, res) => {});
 router.get('/character/detail', (req, res) => {});
 
 // 6-3. [도전] "회원"에 귀속된 캐릭터를 생성하기
-router.post('/character/createfromuser', (req, res) => {});
+router.post('/character/createfromuser',authMiddleware, async (req, res) => {
+  const authResult = await isValidAuth(req);
+  console.log(`나와라ㅠㅠ: ${JSON.stringify(req.authResult)}`);
+});
+
 
 // 6-4. [도전] "회원"에 귀속된 캐릭터를 삭제하기
-router.post('/character/createfrom', (req, res) => {});
+router.post('/character/deletefromuser', authMiddleware, async (req, res) => {
+});
 
 export default router;

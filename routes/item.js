@@ -2,7 +2,6 @@ import express from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const router = express.Router();
-
 // [심화] 라우터마다 prisma 클라이언트를 생성하고 있다. 더 좋은 방법이 있지 않을까?
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
@@ -62,12 +61,11 @@ router.get('/item/list', async (req, res) => {
 // 아이템 코드는 URL의 parameter로 전달받기
 router.get('/item/:itemCode', async (req, res) => {
   try {
-  const itemCode = parseInt(req.params.itemCode); // string
-
-  const result = await prisma.item.findUnique({ where: { itemCode: parseInt(itemCode)}});
+    const itemCode = parseInt(req.params.itemCode); // [수정] parseInt 적용
+    const findItem = await prisma.item.findUnique({ where: { itemCode } });
   //const result = await prisma.item.findUnique({ where: { itemCode: parseInt(itemCode)}});
-  // 위 코드에서 itemCode: itemCode 이렇게 쓰면 스트링으로 간다. 따라서 숫자로 바꿔주어야하는데,
-  // 그방법이 parseInt(itemCode) or +itemCode 를 사용하면된다. +기능은 prisma에서 지원하는 기능.
+  // 위 코드에서 itemCode: itemCode 이렇게 쓰면 스트링으로 간다. 따라서 숫자로 바꿔주어야 한다.
+  // 방법 1. parseInt(itemCode) 방법 2. +itemCode 권장하는건 parseInt를 사용하는 것.
   
   if (findItem == null) {
     res.status(404).json({error: '헉! 그런... 아이템은... 존재하지 않는데...!' });
@@ -84,8 +82,28 @@ router.get('/item/:itemCode', async (req, res) => {
 // [필수] 4. 특정 아이템 수정
 // 아이템 코드는 URL의 parameter로 전달 받기
 // 수정할 아이템 명, 아이템 능력을 req(request)에서 json으로 전달받기
-router.post('/item/update', (req, res) => {
-  prisma.item.update();
+router.post('/item/update/:itemCode', async (req, res) => {
+  try {
+    const { itemCode } = req.params;
+    const { item_name, atk, price } = req.body;
+
+    const updatedItem = await prisma.item.update({
+      where: { itemCode: parseInt(itemCode) },
+      data: {
+        itemName: item_name,
+        atk: atk,
+        price: price,
+      },
+    });
+
+    res.status(200).json({ updated_item: updatedItem });
+  } catch (error) {
+    console.error('아이템 수정 실패:', error);
+    res.status(500).json({
+      error: '실패했습니다.',
+      message: error.message || '알 수 없는 오류가 발생했습니다.',
+    });
+  }
 });
 
 export default router;
