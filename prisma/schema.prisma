@@ -31,6 +31,5 @@ model account {
   userName String
 }
 
-
 // 이 파일을 수정한 뒤엔 저장 후 터미널에 "npx prisma db push"를 실행해주세요.
 // 그리고 MYSQL의 database를 refresh 합니다.
